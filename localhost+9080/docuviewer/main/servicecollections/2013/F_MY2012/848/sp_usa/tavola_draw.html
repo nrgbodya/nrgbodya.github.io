@@ -1,0 +1,453 @@
+﻿<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+<title>Titolo</title></head>
+
+<link rel="stylesheet" href="styles.css">
+
+<script src="functions.js"></script>
+<script src="tav_data.js"></script>
+<script src="global.js"></script>
+<script>
+
+var		tavola = GetParam("tavola");
+var		codici;
+
+setVar("last_tav", tavola);
+
+// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
+function LoadTav()
+{
+	var		svgdoc = document.tavola.getSVGDocument();
+	
+	svgdoc.rootElement.setAttribute('onmouseover', 'EvtMouseOver(evt)');
+	svgdoc.rootElement.setAttribute('onmouseout',  'EvtMouseOut(evt)');
+	svgdoc.rootElement.setAttribute('onclick',     'EvtClick(evt)');
+}
+// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
+
+
+</script>
+
+<body bgcolor=#000000 topmargin=0 leftmargin=0 rightmargin=0 marginwidth=0 marginheight=0>
+
+<table width=98% height=95% cellspacing=1 cellpadding=2 align=center border=0>
+<tr height=12><td bgcolor=#E50004>
+<table width=100% cellspacing=0 cellpadding=0 align=center border=0><tr>
+<td bgcolor=#E50004 class=T12RW id='tav_nome'>Nome Tavola</td><td id='tav_link'>&nbsp;</td>
+</table>
+</td></tr>
+<tr height=380><td bgcolor=#FFFFFF id='tav_disegno' align=center></td></tr>
+<tr height=15%><td>
+<table width=100% cellspacing=1 cellpadding=2 bgcolor=#FFFFFF>
+<!--
+<tr class=T10 bgcolor=#E50004>
+<td>Pos.</td>
+<td>Note</td>
+<td>Codice.</td>
+<td>Descrizione.</td>
+<td>Val.</td>
+<td>Q.</td>
+</tr>
+-->
+<tr height=34 class=T12 bgcolor=#000000>
+<td id='c_pos'  width=8% >&nbsp;Pos.</td>
+<td id='c_note' width=8% >&nbsp;Note</td>
+<td id='c_cod'  width=17%>&nbsp;Code</td>
+<td id='c_desc' width=45%>&nbsp;Description</td>
+<td id='c_val'  width=14%>&nbsp;Val.</td>
+<td id='c_q'    width=8% >&nbsp;Q.ty</td>
+</tr>
+</table>
+</td></tr>
+</table>
+
+</body>
+
+<script>
+
+function SetTavName()
+{
+	var		s;
+	var		i;
+	var		tav_link = "";
+	
+	for(i = 0; i < tavole.length; i++) {
+		if(tavola == tavole[i][0]) {
+			tav_link = tavole[i][8];
+			SetInnerHTML("tav_nome", GetTavMenu(tavola));
+			
+//			s = "<embed width=756 height=500 name='tavola' src='tavole/%2522&#32;+&#32;tavole[i][2]&#32;+&#32;%2522.svg'>";
+			
+			if(screen.width == 1280) {
+				s = "<embed width='100%' height=480 name='tavola' src='tavole/%2522&#32;+&#32;tavole[i][2]&#32;+&#32;%2522.svg'>";
+			} else {
+				s = "<embed width='100%' height=450 name='tavola' src='tavole/%2522&#32;+&#32;tavole[i][2]&#32;+&#32;%2522.svg'>";
+			}
+			
+			SetInnerHTML("tav_disegno", s);
+
+			if(tav_link != "-") {
+				SetInnerHTML("tav_link", "<a href='../wsm/%2522&#32;+&#32;lingua_domain&#32;+&#32;%2522/home.html@p=%2522&#32;+&#32;tavole[i][8]&#32;+&#32;%2522' target=_parent><b>WSM</b></a>");
+			}
+		}
+	}
+}
+
+
+function GetTavMenu(tavola)
+{
+	var		s = "";
+	var		i;
+	
+	s += "<select name='tav_sel' onchange='Javascript: ChangeTav(this);'>";
+
+	for(i = 0; i < tavole.length; i++) {
+		if(tavola == tavole[i][0]) {
+			s += "<option value='" + tavole[i][0] + "' selected>" + tavole[i][0] + " - " + tavole[i][3 + lingua];
+		} else {
+			s += "<option value='" + tavole[i][0] + "'>" + tavole[i][0] + " - " + tavole[i][3 + lingua];
+		}
+	}
+	
+	s += "</select>";
+	
+	s += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font id='model2' class=T12>";
+	
+	return s;
+}
+
+
+function ChangeTav(obj)
+{
+	var		s = new String(window.parent.location);
+	var		i;
+	
+	for(i = 0; i < obj.length; i++) {
+		if(obj[i].selected == true) {
+			if(s.indexOf("tavola_frame_no_head.html") == -1) {
+				window.parent.location = "tavola_frame.html?tavola=" + obj[i].value;
+			} else {
+				window.parent.location = "tavola_frame_no_head.html?tavola=" + obj[i].value;
+			}
+		}
+	}
+}
+
+
+function GetTavCodes()
+{
+	if(tavola == "")	{	return null;	}
+	
+	codici = new Array;
+	
+	var		i;
+	
+	for(i = 0; i < parti.length; i++) {
+		if(parti[i][C_TAVOLA] == tavola) {
+			codici[codici.length] = parti[i];
+		}
+	}
+	
+	return codici;
+}
+
+
+function GetCodeByName(s)
+{
+	var		i;
+	
+	for(i = 0; i < codici.length; i++) {
+		if(codici[i][C_CODICE] == s) {
+			return codici[i];
+		}	
+	}
+	
+	return null;
+}
+
+
+function AddToCart(s)
+{
+/*	var		p = GetCodeByName(s);
+	
+	if(confirm("Add the code " + s + " to order ?")) {
+		window.parent.location = "ordine.html?command=add&tavola=" + tavola + "&codice=" + s + "&pos=" + p[C_POS] + "&q=" + p[C_Q] + "&desc=" + StringToHex(p[C_ING]);
+	}*/
+}
+
+
+codici = GetTavCodes();
+</script>
+
+
+<script>
+// -----------------------------------------------------------------
+//                        INTERATTIVITA' SVG
+// -----------------------------------------------------------------
+var		POPUP_ON	= false;
+var		POPUP_WIDTH	= 120;
+
+function GetCodesByPos(num)
+{
+	var		c = new Array;
+	var		i;
+	
+	for(i = 0; i < codici.length; i++) {
+		if(codici[i][2] == parseInt(num)) {
+//			c[c.length] = codici[i][3];
+			c[c.length] = new Array(i, codici[i][3]);
+		}	
+	}
+	
+	return c;
+}
+
+
+
+function ShowCodeArray(p)
+{
+	document.getElementById('c_pos').innerHTML	= "Ref. " + p[C_POS];
+	document.getElementById('c_note').innerHTML	= p[C_NOTE];
+	document.getElementById('c_cod').innerHTML	= p[C_CODICE];
+	document.getElementById('c_desc').innerHTML	= p[C_ITA + lingua];
+	document.getElementById('c_val').innerHTML	= p[C_VALIDITA];
+	document.getElementById('c_q').innerHTML		= "Q.ty " + p[C_Q];
+}
+
+
+function show_code(i){
+		ShowCodeArray(codici[i]);
+}
+
+
+
+function EvtMouseOver(evt)
+{
+	if(isTextElement(evt.target)) {
+		var		obj	= evt.target;
+		var		txt = new String(obj.firstChild.getData());
+		var		c	= txt.substring(0, 1);
+		var		numbers = new String("123456789");
+
+		if(txt.indexOf(",") != -1)		{	return;	}
+		if(numbers.indexOf(c) == -1)	{	return;	}
+
+		var		i			= parseInt(txt);
+		var		cod_list	= GetCodesByPos(i);
+		
+		if(cod_list.length > 1) {
+			if(POPUP_ON == true) {
+				PopUpMenuDestroy();
+			}
+			PopUpMenuCreate(obj.parentNode, cod_list);
+		} else {
+			PopUpMenuDestroy();
+			show_code(cod_list[0][0]);
+		}
+	}
+}
+
+
+function EvtMouseOut(evt)
+{
+	if(isTextElement(evt.target)) {
+//		PopUpMenuDestroy();
+	}
+}
+
+
+function EvtClick(evt)
+{
+	if(isTextElement(evt.target)) {
+		var		obj	= evt.target;
+		var		txt = new String(obj.firstChild.getData());
+		var		c	= txt.substring(0, 1);
+		var		numbers = new String("123456789");
+
+
+		if(numbers.indexOf(c) == -1) {
+			return;
+		}
+
+		var		i			= parseInt(txt);
+		var		cod_list	= GetCodesByPos(i);
+		
+		if(cod_list.length == 1) {
+			AddToCart(cod_list[0]);
+		}
+	}
+}
+
+
+function isTextElement(obj)
+{
+	var		obj_str = new String(obj);
+	var		p		= obj.parentNode;
+	
+	if(obj_str != "[object SVGTSpanElement]")	{	return false;	}
+	if(p.getAttribute('id') == "menuText")		{	return false;	}
+	
+	return true;
+}
+
+
+function GetTextStart(svgobj) {
+	var		pos		= "null";
+	
+	if(svgobj == null) {	return "null";	}
+	
+	var		m = svgobj.getCTM();
+
+	pos = m.e + " " + m.f;
+	
+	return pos;
+}
+
+
+function DestroySVGObject(objectID)
+{
+	var		svgdoc	= document.tavola.getSVGDocument();
+	var		svgobj	= svgdoc.getElementById(objectID);
+	var		root	= svgdoc.rootElement;
+	
+	if(svgobj == null)	{	return;	}
+	
+	root.removeChild(svgobj);
+}
+
+
+function PopUpMenuCreateRect(x, y, height)
+{
+	var		svgdoc	= document.tavola.getSVGDocument();
+	var		root	= svgdoc.rootElement;
+	var		obj;
+	var		g;
+	var		doc_w	= parseInt(root.getAttribute('width'));
+	var		doc_h	= parseInt(root.getAttribute('height'));
+	
+	g = svgdoc.createElement('g');
+	g.setAttribute('id', 'PopUpMenu');
+	g.setAttribute('visibility', 'visible');
+	root.appendChild(g);
+
+	// ELEMENTO DI SFONDO PER CONCENTRARE IL "MOUSEOUT" SUL MENU
+	obj		= svgdoc.createElement('rect');
+	obj.setAttribute('x', 0);
+	obj.setAttribute('y', 0);
+	obj.setAttribute('width', root.getAttribute('width'));
+	obj.setAttribute('height', root.getAttribute('height'));
+	obj.setAttribute('style', 'fill:#000000;stroke:none');
+	obj.setAttribute('opacity', '.001');
+	obj.setAttribute('onmouseover', 'PopUpMenuDestroy()');
+	obj.setAttribute('id', 'popupmenu_out');
+	g.appendChild(obj);
+
+	obj		= svgdoc.createElement('rect');
+	obj.setAttribute('x', x + 1.5);
+	obj.setAttribute('y', y + 1.5);
+	obj.setAttribute('width', POPUP_WIDTH);
+	obj.setAttribute('height', height);
+	obj.setAttribute('style', 'fill:#444444');
+	obj.setAttribute('id', 'popupmenu_shadow');
+	g.appendChild(obj);
+	
+	obj		= svgdoc.createElement('rect');
+	obj.setAttribute('x', x);
+	obj.setAttribute('y', y);
+	obj.setAttribute('width', POPUP_WIDTH);
+	obj.setAttribute('height', height);
+	obj.setAttribute('style', 'fill:#E50004;stroke:#000000;stroke-width:1');
+//	obj.setAttribute('onmouseout', 'PopUpMenuHide()');
+	obj.setAttribute('id', 'popupmenu_rect');
+	g.appendChild(obj);
+	
+	POPUP_ON = true;
+}
+
+
+function PopUpMenuAddLine(x, y, textString, objectID, cod)
+{
+	var		svgdoc	= document.tavola.getSVGDocument();
+	var		root	= svgdoc.rootElement;
+	var		g		= svgdoc.getElementById("PopUpMenu");
+	var		a;
+	var		obj;
+	var		text;
+	
+	a = svgdoc.createElement('a');
+	g.appendChild(a);
+
+//	text = svgdoc.createTextNode(textString);
+	text = svgdoc.createTextNode(cod[1]);
+	
+	obj = svgdoc.createElement('text');
+	obj.setAttribute('id', 'menuText');
+	obj.setAttribute('x', x);
+	obj.setAttribute('y', y);
+	obj.setAttribute('style','text-anchor:left;font-size:12;font-family:Arial;fill:#FFFFFF');
+//	obj.setAttribute('onclick', "AddToCart('" + click + "')");
+	obj.setAttribute('onmouseover', "show_code('" + cod[0] + "')");
+	obj.setAttribute('id', objectID);
+	obj.appendChild(text);
+	a.appendChild(obj);
+}
+
+
+function PopUpMenuCreate(obj, cod)
+{
+	var		svgdoc		= document.tavola.getSVGDocument();
+	var		root		= svgdoc.rootElement;
+	var		x;
+	var		y;
+	var		pos;
+	var		doc_w		= parseInt(root.getAttribute('width'));
+	var		doc_h		= parseInt(root.getAttribute('height'));
+	var		menuHeight	= cod.length * 16;
+	
+	pos = GetTextStart(obj);
+	if(pos == "null") {
+		return;
+	}
+		
+	x	= parseInt(pos.substring(0, pos.indexOf(' '))) - 60;
+	y	= parseInt(pos.substring(pos.indexOf(' ') + 1, pos.length));
+	
+	if(x < 0)						{	x = 0;	}
+	if(x > (doc_w - POPUP_WIDTH))	{	x = doc_w - POPUP_WIDTH;	}
+	if(y > (doc_h - menuHeight))	{	y = doc_h - menuHeight;		}
+	
+	
+//	if(x  < (doc_w / 2))	{	x -= 30;	}
+//	if(x >= (doc_w / 2))	{	x -= 60;	}
+	
+	PopUpMenuCreateRect(x, y - 12, menuHeight);
+	
+	var		i;
+	
+	for(i = 0; i < cod.length; i++) {
+		PopUpMenuAddLine(x + 5, y + (16 * i), "page 1", "popupmenu_item1", cod[i]);
+//		alert(cod[i]);
+	}
+	
+//	PopUpMenuAddLine(x + 5, y, "page 1", "popupmenu_item1", cod);
+}
+
+	
+function PopUpMenuDestroy()
+{
+	DestroySVGObject("PopUpMenu");
+	POPUP_ON = false;
+}
+</script>
+
+<script>
+SetTavName();
+</script>
+
+<script>
+SetInnerHTML("model2", model_name);
+</script>
+
+</html>

@@ -1,0 +1,11 @@
+﻿<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+<title>Ducati :: Tavola</title>
+</head>
+<frameset cols='160, *' border=0>
+	<frame name='page_left' src='tavola_codici.html'scrolling='auto'>
+	<frame name='page_right' src='tavola_draw.html' scrolling='auto'>
+</frameset><noframes></noframes>
+</html>

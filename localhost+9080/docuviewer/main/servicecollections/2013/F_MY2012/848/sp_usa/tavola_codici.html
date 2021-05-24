@@ -1,0 +1,138 @@
+﻿<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+<title>Titolo</title>
+</head>
+
+<link rel="stylesheet" href="styles.css">
+
+<script src="functions.js"></script>
+<script src="tav_data.js"></script>
+<script>
+
+var		tavola = GetParam("tavola");
+var		codici;
+
+</script>
+
+<body bgcolor=#000000 topmargin=0 leftmargin=0 rightmargin=0 marginwidth=0 marginheight=0 onclick="return false;">
+<div id='cod_field'></div>
+
+</body>
+
+<script>
+
+function GetTavCodes()
+{
+	if(tavola == "")	{	return null;	}
+	
+	codici = new Array;
+	
+	var		i;
+	
+	for(i = 0; i < parti.length; i++) {
+		if(parti[i][C_TAVOLA] == tavola) {
+			codici[codici.length] = parti[i];
+		}
+	}
+	
+	return codici;
+}
+
+function GetCodeByName(s)
+{
+	var		i;
+	
+	for(i = 0; i < codici.length; i++) {
+		if(codici[i][C_CODICE] == s) {
+			return codici[i];
+		}	
+	}
+	
+	return null;
+}
+
+
+function AddToCart(s)
+{
+/*	var		p = GetCodeByName(s);
+	
+	if(confirm("Add the code " + s + " to order ?")) {
+		window.parent.location = "ordine.html?command=add&tavola=" + tavola + "&codice=" + s + "&pos=" + p[C_POS] + "&q=" + p[C_Q] + "&desc=" + StringToHex(p[C_ING]);
+	}*/
+}
+
+codici = GetTavCodes();
+
+setTimeout('printCodes()',0);
+
+
+function printCodes()
+{
+	var		s = "";
+	var		i, k;
+	
+//	s += "<table width=100% cellspacing=1 cellpadding=2 bgcolor=#FFFFFF>\n";
+	s += "<table width=100% cellspacing=1 cellpadding=2 bgcolor=#000000>\n";
+	
+	for(i = 0; i < codici.length; i++) {
+		p = codici[i];
+		
+//		s += "<tr class=T12B>";
+		s += "<tr class=T12RW>";
+		s += "<td valign=top>" + p[2] + "</td>";	
+//		s += "<td valign=top><a href="http://localhost:9080/docuviewer/main/servicecollections/2013/F_MY2012/848/sp_usa/%5C%22Javascript:" AddToCart('" + p[3] + "');\" onmouseover='Javascript: ShowCode(" + i + ");'>" + p[3] + "</a></td>";	
+		s += "<td valign=top onmouseover='Javascript: ShowCode(" + i + ");'><a href='tavola_codici.html#' onFocus='Javascript: this.blur();'>" + p[3] + "</a></td>";	
+		s += "</tr>";
+	}
+	
+	s += "</table>\n";
+	
+	SetInnerHTML("cod_field", s);
+}
+
+
+function ShowCode(i)
+{
+	var		p = codici[i];
+	var		obj;
+	
+//	alert(document.parent.location);
+	window.parent.frames['page_right'].document.getElementById('c_pos').innerHTML = "Ref. " + p[C_POS];
+	window.parent.frames['page_right'].document.getElementById('c_note').innerHTML = p[C_NOTE];
+	window.parent.frames['page_right'].document.getElementById('c_cod').innerHTML = p[C_CODICE];
+	window.parent.frames['page_right'].document.getElementById('c_desc').innerHTML = p[C_ITA + lingua];
+	window.parent.frames['page_right'].document.getElementById('c_val').innerHTML = p[C_VALIDITA];
+	window.parent.frames['page_right'].document.getElementById('c_q').innerHTML = "Q.ty " + p[C_Q];
+}
+
+
+function printFullCodes()
+{
+	var		s = "";
+	var		i, k;
+	
+	s += "<table width=100% cellspacing=1 cellpadding=2 bgcolor=#FFFFFF>\n";
+//	s += "<table cellspacing=0 border=1>\n";
+	
+	for(i = 0; i < codici.length; i++) {
+		p = codici[i];
+		
+		s += "<tr class=T12B>";
+		
+		for(k = 0; k < p.length; k++) {
+			s += "<td valign=top>" + p[k] + "</td>";	
+		}	
+		
+		s += "</tr>";
+	}
+	
+	s += "</table>\n";
+	
+	document.write(s);
+}
+
+</script>
+
+</html>
